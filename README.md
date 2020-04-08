@@ -3,13 +3,13 @@ This repo includes several custom tasks/environments built on [openai-gym](https
 
 # Install
 ```
-$ git clone
-$ cd
+$ git clone https://github.com/CgnRLAgent/cog_ml_tasks.git
+$ cd cog_ml_tasks
 $ pip install -e .
 ```
-**Requirements:** see the [setup.py]().
+**Requirements:** see the [setup.py](https://github.com/CgnRLAgent/cog_ml_tasks/blob/master/setup.py).
 
-# Task Descriptions
+# Envs/Tasks Descriptions
 ## 1_2AX
 The 1_2AX task consists in the presentation to the subject of six possible stimuli/cues '1' - '2', 'A' - 'B', 'X' - 'Y'.
 
