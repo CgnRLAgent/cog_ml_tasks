@@ -8,7 +8,7 @@ he has to answer 'R' when
 - the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
 in any other case , reply 'L'.
 
-AUTHOR: Zenggo
+AUTHOR: zenggo
 DATE: 04.2020
 """
 
