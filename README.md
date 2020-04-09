@@ -1,5 +1,5 @@
 # Cognitive and ML Tasks
-This repo includes several custom tasks/environments built on [openai-gym](https://gym.openai.com/) for training RL agents. 
+This repo includes several tasks/environments built on [openai-gym](https://gym.openai.com/) for training RL agents. 
 
 # Install
 ```
