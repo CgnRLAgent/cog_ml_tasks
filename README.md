@@ -36,7 +36,7 @@ Target: LLLLLLR
 ### Usage
 ```python
 import gym
-import gym_ax
+import gym_cog_ml_tasks
 
 env = gym.make('1_2AX-v0')
 env.reset()
