@@ -43,7 +43,7 @@ env.reset()
 env.step(env.action_space.sample())
 env.render()
 # custom params
-env = gym.make('AX_12-v0', min_size=3, prob_r=0.5)
+env = gym.make('AX_12-v0', size_range=(2,5), prob_target=0.5)
 ```
 
 ## AX_CPT
