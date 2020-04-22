@@ -50,6 +50,7 @@ env = gym.make('AX_12-v0', min_size=3, prob_r=0.5)
 The AX_CPT task consists in the presentation to the subject of four possible stimuli/cues: two context cues 'A' - 'B' and 2 target cues 'X' - 'Y'.
 
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli: 
+This task must start with context cues. Context cues and target cues take turns to appear. 
 he has to answer 'R' when
 * the current stimulus is 'X' AND the previous stimulus is 'A' ,
 in any other case , reply 'L'.
