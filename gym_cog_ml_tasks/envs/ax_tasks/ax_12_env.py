@@ -8,7 +8,7 @@ he has to answer 'R' when
 - the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
 in any other case , reply 'L'.
 
-AUTHOR: Zenggo
+AUTHOR: zenggo
 DATE: 04.2020
 """
 
@@ -26,10 +26,10 @@ class AX_12_ENV(Env):
     CHAR_2 = ['X', 'Y', 'Z']
     ACTIONS = ['L', 'R']
 
-    def __init__(self, min_size=1, prob_r=0.3):
+    def __init__(self, size_range=(1,4), prob_target=0.5):
         """
-        :param min_size: the min number of sets of 2-char combinations of generated inputs, e.g. 1: 1AX; 2: 1AXBY; 3: 1AXBYCZ
-        :param prob_r: the probability to generate 'AX' given '1' or 'BY' given '2'
+        :param size_range: the number of sets of 2-char combinations of generated inputs, e.g. 1: 1AX; 2: 1AXBY; 3: 1AXBYCZ
+        :param prob_target: the probability to generate 'AX' or 'BY'
         """
         # observation (characters)
         self.idx_2_char = self.DIGITS + self.CHAR_1 + self.CHAR_2
@@ -41,8 +41,8 @@ class AX_12_ENV(Env):
         # action
         self.action_space = Discrete(len(self.ACTIONS))
 
-        self.min_size = min_size
-        self.prob_r = prob_r
+        self.size_options = np.arange(size_range[0], size_range[1]+1)
+        self.prob_target = prob_target
 
         # states of an episode
         self.position = None
@@ -66,19 +66,12 @@ class AX_12_ENV(Env):
         return sets
 
     @property
-    def probs_given_1(self):
+    def probs(self):
         n_sets = len(self.char_sets)
-        prob_l = (1 - self.prob_r) / (n_sets - 1)
-        p = np.full(n_sets, prob_l)
-        p[self.char_sets.index('AX')] = self.prob_r
-        return p
-
-    @property
-    def probs_given_2(self):
-        n_sets = len(self.char_sets)
-        prob_l = (1 - self.prob_r) / (n_sets - 1)
-        p = np.full(n_sets, prob_l)
-        p[self.char_sets.index('BY')] = self.prob_r
+        prob_other = (1 - self.prob_target) / (n_sets - 2)
+        p = np.full(n_sets, prob_other)
+        p[self.char_sets.index('AX')] = self.prob_target / 2
+        p[self.char_sets.index('BY')] = self.prob_target / 2
         return p
 
     @property
@@ -94,7 +87,7 @@ class AX_12_ENV(Env):
         self.last_action = None
         self.last_reward = None
         self.episode_total_reward = 0.0
-        size = self.np_random.randint(3) + self.min_size
+        size = self.np_random.choice(self.size_options)
         self.input_str, self.target_str = self._generate_input_target(size)
         self.output_str = ''
         obs_char, obs_idx = self._get_observation()
@@ -144,13 +137,11 @@ class AX_12_ENV(Env):
         input_str = digit
         target_str = 'L'
         for _ in np.arange(size):
+            s = np.random.choice(self.char_sets, p=self.probs)
+            input_str += s
             if digit == '1':
-                s = np.random.choice(self.char_sets, p=self.probs_given_1)
-                input_str += s
                 target_str += 'LR' if s == 'AX' else 'LL'
             else:
-                s = np.random.choice(self.char_sets, p=self.probs_given_2)
-                input_str += s
                 target_str += 'LR' if s == 'BY' else 'LL'
         return input_str, target_str
 
