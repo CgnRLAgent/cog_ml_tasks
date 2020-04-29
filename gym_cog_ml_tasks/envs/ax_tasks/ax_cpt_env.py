@@ -2,6 +2,7 @@
 AX CPT TASK:
 
 he AX CPT task consists in the presentation to the subject of four possible stimuli/cues: two context cues 'A' - 'B' and 2 target cues 'X' - 'Y'.
+This task must start with context cues. Context cues and target cues take turns to appear. 
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli: 
 he has to answer 'R' when
 - the current stimulus is 'X' AND the previous stimulus is 'A' ,
@@ -113,8 +114,11 @@ class AX_CPT_ENV(Env):
     def _generate_input_target(self, size):
         input_str = ''
         target_str = ''
-        for _ in np.arange(size):
-            s = np.random.choice(self.idx_2_char)
+        for i in np.arange(size):
+            if i % 2 == 0:
+                s = np.random.choice(self.CHAR_1)
+            else:
+                s = np.random.choice(self.CHAR_2)
             input_str += s
             if len(input_str) > 1 and input_str[-2:] == 'AX':
                 target_str += 'R' 

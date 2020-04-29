@@ -1,5 +1,6 @@
 ## AX_CPT
 The AX_CPT task consists in the presentation to the subject of four possible stimuli/cues: two context cues 'A' - 'B' and 2 target cues 'X' - 'Y'.
+This task must start with context cues. Context cues and target cues take turns to appear. 
 
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli: 
 he has to answer 'R' when
