@@ -11,7 +11,6 @@ The action(output) is chosen from a char set e.g. {A,B,C,D,E}.
 
 After the last input char is observed, an empty symbol will be observed for each step before the episode is end.
 The episode ends when the agent respond R*X times, where X is the input seq length and R is the repeat time.
-If the agent respond an incorrect char, the episode will also end.
 
 AUTHOR: Zenggo
 DATE: 04.2020
@@ -85,20 +84,14 @@ class Simple_Copy_Repeat_ENV(Env):
         assert self.action_space.contains(action)
         assert 0 <= self.position < self.target_length
         target_act = self.ALPHABET.index(self.target_str[self.position])
-        if action == target_act:
-            reward = 1.0
-            done = False
-        else:
-            reward = -1.0
-            done = True
+        reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
         self.output_str += self.ALPHABET[action]
         self.position += 1
-        if done:
-            obs = None
-        elif self.position < self.target_length:
+        if self.position < self.target_length:
+            done = False
             _, obs = self._get_observation()
         else:
             done = True

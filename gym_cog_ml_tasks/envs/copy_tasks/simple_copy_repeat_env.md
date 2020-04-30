@@ -15,8 +15,6 @@ After the last input char is observed, an empty symbol will be observed for each
 
 The episode ends when the agent respond R*X times, where X is the input seq length and R is the repeat time.
 
-If the agent respond an incorrect char, the episode will also end.
-
 **predefined rewards:** output correctly(1.0), not correct(-1.0)
 
 ### Usage

@@ -7,7 +7,6 @@ Ideal output:  ABCDE
 
 At each time step a character is observed, and the agent should respond a char.
 The action(output) is chosen from a char set e.g. {A,B,C,D,E}.
-If the agent respond an incorrect char, the episode will end.
 
 AUTHOR: Zenggo
 DATE: 04.2020
@@ -73,20 +72,14 @@ class Simple_Copy_ENV(Env):
         assert self.action_space.contains(action)
         assert 0 <= self.position < self.input_length
         target_act = self.ALPHABET.index(self.target_str[self.position])
-        if action == target_act:
-            reward = 1.0
-            done = False
-        else:
-            reward = -1.0
-            done = True
+        reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
         self.output_str += self.ALPHABET[action]
         self.position += 1
-        if done:
-            obs = None
-        elif self.position < self.input_length:
+        if self.position < self.input_length:
+            done = False
             _, obs = self._get_observation()
         else:
             done = True
