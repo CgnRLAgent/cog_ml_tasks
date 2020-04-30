@@ -8,7 +8,7 @@ he has to answer 'R' when
 - the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
 in any other case , reply 'L'.
 
-AUTHOR: zenggo
+AUTHOR: Zenggo
 DATE: 04.2020
 """
 
@@ -95,7 +95,7 @@ class AX_12_ENV(Env):
 
     def step(self, action):
         assert self.action_space.contains(action)
-        assert 0 <= self.position <= self.input_length
+        assert 0 <= self.position < self.input_length
         target_act = self.ACTIONS.index(self.target_str[self.position])
         reward = 1.0 if action == target_act else -1.0
         self.last_action = action
