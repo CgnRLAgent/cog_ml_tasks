@@ -1,12 +1,12 @@
 """
-AX_12 TASK:
+simple copy task:
 
-The AX_12 task consists in the presentation to the subject of six possible stimuli/cues '1' - '2', 'A' - 'B', 'X' - 'Y'.
-The tester has 2 possible responses which depend on the temporal order of previous and current stimuli:
-he has to answer 'R' when
-- the last stored digit is '1' AND the previous stimulus is 'A' AND the current one is 'X',
-- the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
-in any other case , reply 'L'.
+Simply copy the input sequence as output. For example:
+Input:         ABCDE
+Ideal output:  ABCDE
+
+At each time step a character is observed, and the agent should respond a char.
+The action(output) is chosen from a char set e.g. {A,B,C,D,E}.
 
 AUTHOR: Zenggo
 DATE: 04.2020
@@ -17,32 +17,25 @@ from gym.spaces import Discrete
 from gym.utils import colorize, seeding
 import numpy as np
 import sys
+import string
 
 
-class AX_12_ENV(Env):
+class Simple_Copy_ENV(Env):
 
-    DIGITS = ['1', '2']
-    CHAR_1 = ['A', 'B', 'C']
-    CHAR_2 = ['X', 'Y', 'Z']
-    ACTIONS = ['L', 'R']
+    ALPHABET = list(string.ascii_uppercase[:26])
 
-    def __init__(self, size_range=(1,4), prob_target=0.5):
+    def __init__(self, n_char=5, len_range=(4,20)):
         """
-        :param size_range: the number of sets of 2-char combinations of generated inputs, e.g. 1: 1AX; 2: 1AXBY; 3: 1AXBYCZ
-        :param prob_target: the probability to generate 'AX' or 'BY'
+        :param n_char: number of different chars in inputs, e.g. 3 => {A,B,C}
+        :param len_range: the length range of input sequence
         """
+        self.n_char = n_char
+        self.len_range = (len_range[0], len_range[1] + 1)
+
         # observation (characters)
-        self.idx_2_char = self.DIGITS + self.CHAR_1 + self.CHAR_2
-        self.char_2_idx = {}
-        for i, c in enumerate(self.idx_2_char):
-            self.char_2_idx[c] = i
-        self.observation_space = Discrete(len(self.idx_2_char))
-
+        self.observation_space = Discrete(n_char)
         # action
-        self.action_space = Discrete(len(self.ACTIONS))
-
-        self.size_options = np.arange(size_range[0], size_range[1]+1)
-        self.prob_target = prob_target
+        self.action_space = Discrete(n_char)
 
         # states of an episode
         self.position = None
@@ -58,23 +51,6 @@ class AX_12_ENV(Env):
         self.reset()
 
     @property
-    def char_sets(self):
-        sets = []
-        for c1 in self.CHAR_1:
-            for c2 in self.CHAR_2:
-                sets.append(c1 + c2)
-        return sets
-
-    @property
-    def probs(self):
-        n_sets = len(self.char_sets)
-        prob_other = (1 - self.prob_target) / (n_sets - 2)
-        p = np.full(n_sets, prob_other)
-        p[self.char_sets.index('AX')] = self.prob_target / 2
-        p[self.char_sets.index('BY')] = self.prob_target / 2
-        return p
-
-    @property
     def input_length(self):
         return len(self.input_str)
 
@@ -87,8 +63,7 @@ class AX_12_ENV(Env):
         self.last_action = None
         self.last_reward = None
         self.episode_total_reward = 0.0
-        size = self.np_random.choice(self.size_options)
-        self.input_str, self.target_str = self._generate_input_target(size)
+        self.input_str, self.target_str = self._generate_input_target()
         self.output_str = ''
         obs_char, obs_idx = self._get_observation()
         return obs_idx
@@ -96,12 +71,12 @@ class AX_12_ENV(Env):
     def step(self, action):
         assert self.action_space.contains(action)
         assert 0 <= self.position < self.input_length
-        target_act = self.ACTIONS.index(self.target_str[self.position])
+        target_act = self.ALPHABET.index(self.target_str[self.position])
         reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
-        self.output_str += self.ACTIONS[action]
+        self.output_str += self.ALPHABET[action]
         self.position += 1
         if self.position < self.input_length:
             done = False
@@ -113,7 +88,7 @@ class AX_12_ENV(Env):
         return obs, reward, done, info
 
     def render(self, mode='human'):
-        outfile = sys.stdout  #TODO: other mode
+        outfile = sys.stdout  # TODO: other mode
         pos = self.position - 1
         if pos > -1:
             o_str = self.output_str[:pos]
@@ -121,7 +96,7 @@ class AX_12_ENV(Env):
             o_str += colorize(self.output_str[pos], color, highlight=True)
         else:
             o_str = ''
-        outfile.write("="*20 + "\n")
+        outfile.write("=" * 20 + "\n")
         outfile.write("Length   : " + str(self.input_length) + "\n")
         outfile.write("Input    : " + self.input_str + "\n")
         outfile.write("Target   : " + self.target_str + "\n")
@@ -133,22 +108,18 @@ class AX_12_ENV(Env):
         outfile.write("\n")
         return
 
-    def _generate_input_target(self, size):
-        digit = np.random.choice(self.DIGITS)
-        input_str = digit
-        target_str = 'L'
-        for _ in np.arange(size):
-            s = np.random.choice(self.char_sets, p=self.probs)
-            input_str += s
-            if digit == '1':
-                target_str += 'LR' if s == 'AX' else 'LL'
-            else:
-                target_str += 'LR' if s == 'BY' else 'LL'
+    def _generate_input_target(self):
+        len = self.np_random.choice(np.arange(*self.len_range))
+        input_str = ""
+        for i in range(len):
+            c = self.np_random.choice(self.ALPHABET[:self.n_char])
+            input_str += c
+        target_str = input_str
         return input_str, target_str
 
     def _get_observation(self, pos=None):
         if pos is None:
             pos = self.position
         obs_char = self.input_str[pos]
-        obs_idx = self.char_2_idx[obs_char]
+        obs_idx = self.ALPHABET.index(obs_char)
         return obs_char, obs_idx
