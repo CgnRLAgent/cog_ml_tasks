@@ -28,15 +28,15 @@ class Simple_Copy_Repeat_ENV(Env):
 
     ALPHABET = list(string.ascii_uppercase[:26])
 
-    def __init__(self, n_char=5, len_range=(2,10), repeat_range=(3,5)):
+    def __init__(self, n_char=5, size=6, repeat=3):
         """
         :param n_char: number of different chars in inputs, e.g. 3 => {A,B,C}
-        :param len_range: the length range of input sequence
-        :param repeat_range: the range of expected repeat times of the target output
+        :param size: the length of input sequence
+        :param repeat: the expected repeat times of the target output
         """
         self.n_char = n_char
-        self.len_range = (len_range[0], len_range[1]+1)
-        self.repeat_range = (repeat_range[0], repeat_range[1]+1)
+        self.size = size
+        self.repeat = repeat
 
         # observation (characters)
         self.observation_space = Discrete(n_char+1)  # +1: empty symbol, whose index is n_char
@@ -44,7 +44,6 @@ class Simple_Copy_Repeat_ENV(Env):
         self.action_space = Discrete(n_char)
 
         # states of an episode
-        self.repeat_time = None
         self.position = None
         self.last_action = None
         self.last_reward = None
@@ -63,14 +62,13 @@ class Simple_Copy_Repeat_ENV(Env):
 
     @property
     def target_length(self):
-        return self.input_length * self.repeat_time
+        return self.input_length * self.repeat
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def reset(self):
-        self.repeat_time = self.np_random.choice(np.arange(*self.repeat_range))
         self.position = 0
         self.last_action = None
         self.last_reward = None
@@ -121,13 +119,12 @@ class Simple_Copy_Repeat_ENV(Env):
         return
 
     def _generate_input_target(self):
-        len = self.np_random.choice(np.arange(*self.len_range))
         input_str = ""
-        for i in range(len):
+        for i in range(self.size):
             c = self.np_random.choice(self.ALPHABET[:self.n_char])
             input_str += c
         target_str = ""
-        for i in range(self.repeat_time):
+        for i in range(self.repeat):
             if i % 2 == 1:
                 target_str += input_str[::-1]
             else:

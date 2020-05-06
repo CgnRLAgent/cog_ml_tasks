@@ -24,13 +24,13 @@ class Simple_Copy_ENV(Env):
 
     ALPHABET = list(string.ascii_uppercase[:26])
 
-    def __init__(self, n_char=5, len_range=(4,20)):
+    def __init__(self, n_char=5, size=10):
         """
         :param n_char: number of different chars in inputs, e.g. 3 => {A,B,C}
-        :param len_range: the length range of input sequence
+        :param size: the length of input sequence
         """
         self.n_char = n_char
-        self.len_range = (len_range[0], len_range[1] + 1)
+        self.size = size
 
         # observation (characters)
         self.observation_space = Discrete(n_char)
@@ -108,9 +108,8 @@ class Simple_Copy_ENV(Env):
         return
 
     def _generate_input_target(self):
-        len = self.np_random.choice(np.arange(*self.len_range))
         input_str = ""
-        for i in range(len):
+        for i in range(self.size):
             c = self.np_random.choice(self.ALPHABET[:self.n_char])
             input_str += c
         target_str = input_str
