@@ -27,5 +27,5 @@ env.reset()
 env.step(env.action_space.sample())
 env.render()
 # custom params
-env = gym.make('Simple_Copy_Repeat-v0', n_char=3, len_range=(2,5), repeat_range=(3,4))
+env = gym.make('Simple_Copy_Repeat-v0', n_char=3, size=10, repeat=3)
 ```

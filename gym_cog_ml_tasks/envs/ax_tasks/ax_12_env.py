@@ -26,9 +26,9 @@ class AX_12_ENV(Env):
     CHAR_2 = ['X', 'Y', 'Z']
     ACTIONS = ['L', 'R']
 
-    def __init__(self, size_range=(1,4), prob_target=0.5):
+    def __init__(self, size=10, prob_target=0.3):
         """
-        :param size_range: the number of sets of 2-char combinations of generated inputs, e.g. 1: 1AX; 2: 1AXBY; 3: 1AXBYCZ
+        :param size: the length of generated inputs, not including the first digit
         :param prob_target: the probability to generate 'AX' or 'BY'
         """
         # observation (characters)
@@ -41,7 +41,7 @@ class AX_12_ENV(Env):
         # action
         self.action_space = Discrete(len(self.ACTIONS))
 
-        self.size_options = np.arange(size_range[0], size_range[1]+1)
+        self.size = size // 2
         self.prob_target = prob_target
 
         # states of an episode
@@ -87,8 +87,7 @@ class AX_12_ENV(Env):
         self.last_action = None
         self.last_reward = None
         self.episode_total_reward = 0.0
-        size = self.np_random.choice(self.size_options)
-        self.input_str, self.target_str = self._generate_input_target(size)
+        self.input_str, self.target_str = self._generate_input_target()
         self.output_str = ''
         obs_char, obs_idx = self._get_observation()
         return obs_idx
@@ -132,11 +131,11 @@ class AX_12_ENV(Env):
         outfile.write("\n")
         return
 
-    def _generate_input_target(self, size):
+    def _generate_input_target(self):
         digit = np.random.choice(self.DIGITS)
         input_str = digit
         target_str = 'L'
-        for _ in np.arange(size):
+        for _ in np.arange(self.size):
             s = np.random.choice(self.char_sets, p=self.probs)
             input_str += s
             if digit == '1':
