@@ -96,7 +96,7 @@ Each trial is composed by different phases:
 - DELAY: location cue disappears for two timesteps to test the memory delay
 - GO: fixation mark disappears as well (empty screen) and the subject has to solve the task (it has up to 8 timesteps to answer L or R)
 
-e.g.
+e.g.  
 Start: 
 Screen: None
 
