@@ -115,12 +115,11 @@ class AX_S_12_ENV(Env):
     def render(self, mode='human'):
         outfile = sys.stdout  #TODO: other mode
         pos = self.position - 1
+        o_str = ""
         if pos > -1:
-            o_str = self.output_str[:pos]
-            color = 'green' if self.target_str[pos] == self.output_str[pos] else 'red'
-            o_str += colorize(self.output_str[pos], color, highlight=True)
-        else:
-            o_str = ''
+            for i, c in enumerate(self.output_str):
+                color = 'green' if self.target_str[i] == c else 'red'
+                o_str += colorize(c, color, highlight=True)
         outfile.write("="*20 + "\n")
         outfile.write("Length   : " + str(self.input_length) + "\n")
         outfile.write("Input    : " + self.input_str + "\n")
