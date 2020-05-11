@@ -2,6 +2,7 @@
 AX CPT TASK:
 
 he AX CPT task consists in the presentation to the subject of four possible stimuli/cues: two context cues 'A' - 'B' and 2 target cues 'X' - 'Y'.
+This task must start with context cues. Context cues and target cues take turns to appear. 
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli: 
 he has to answer 'R' when
 - the current stimulus is 'X' AND the previous stimulus is 'A' ,
@@ -74,12 +75,12 @@ class AX_CPT_ENV(Env):
     def step(self, action):
         assert self.action_space.contains(action)
         assert 0 <= self.position <= self.input_length
-        output = self.ACTIONS[action]
-        reward = 1.0 if output == self.target_str[self.position] else -1.0
+        target_act = self.ACTIONS.index(self.target_str[self.position])
+        reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
-        self.output_str += output
+        self.output_str += self.ACTIONS[action]
         self.position += 1
         if self.position < self.input_length:
             done = False
@@ -87,17 +88,17 @@ class AX_CPT_ENV(Env):
         else:
             done = True
             obs = None
-        return obs, reward, done, {}
+        info = {"target_act": target_act}
+        return obs, reward, done, info
 
     def render(self, mode='human'):
         outfile = sys.stdout  #TODO: other mode
         pos = self.position - 1
+        o_str = ""
         if pos > -1:
-            o_str = self.output_str[:pos]
-            color = 'green' if self.target_str[pos] == self.output_str[pos] else 'red'
-            o_str += colorize(self.output_str[pos], color, highlight=True)
-        else:
-            o_str = ''
+            for i, c in enumerate(self.output_str):
+                color = 'green' if self.target_str[i] == c else 'red'
+                o_str += colorize(c, color, highlight=True)
         outfile.write("="*20 + "\n")
         outfile.write("Length   : " + str(self.input_length) + "\n")
         outfile.write("Input    : " + self.input_str + "\n")
@@ -113,8 +114,11 @@ class AX_CPT_ENV(Env):
     def _generate_input_target(self, size):
         input_str = ''
         target_str = ''
-        for _ in np.arange(size):
-            s = np.random.choice(self.idx_2_char)
+        for i in np.arange(size):
+            if i % 2 == 0:
+                s = np.random.choice(self.CHAR_1)
+            else:
+                s = np.random.choice(self.CHAR_2)
             input_str += s
             if len(input_str) > 1 and input_str[-2:] == 'AX':
                 target_str += 'R' 
