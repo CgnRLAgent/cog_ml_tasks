@@ -25,9 +25,10 @@ class AX_CPT_ENV(Env):
     CHAR_2 = ['X', 'Y']
     ACTIONS = ['L', 'R']
 
-    def __init__(self, size=500):
+    def __init__(self, size=500, prob_target=0.3):
         """
         :param size: the number of inputing stimuli/cues
+        :param prob_target: the probability to generate 'AX'
         """
         # observation (characters)
         self.idx_2_char = self.CHAR_1 + self.CHAR_2
@@ -39,7 +40,8 @@ class AX_CPT_ENV(Env):
         # action
         self.action_space = Discrete(len(self.ACTIONS))
 
-        self.size = size
+        self.size = size // 2
+        self.prob_target = prob_target
 
         # states of an episode
         self.position = None
@@ -53,6 +55,22 @@ class AX_CPT_ENV(Env):
         self.np_random = None
         self.seed()
         self.reset()
+
+    @property
+    def char_sets(self):
+        sets = []
+        for c1 in self.CHAR_1:
+            for c2 in self.CHAR_2:
+                sets.append(c1 + c2)
+        return sets
+
+    @property
+    def probs(self):
+        n_sets = len(self.char_sets)
+        prob_other = (1 - self.prob_target) / (n_sets - 1)
+        p = np.full(n_sets, prob_other)
+        p[self.char_sets.index('AX')] = self.prob_target
+        return p
 
     @property
     def input_length(self):
@@ -114,16 +132,13 @@ class AX_CPT_ENV(Env):
     def _generate_input_target(self, size):
         input_str = ''
         target_str = ''
-        for i in np.arange(size):
-            if i % 2 == 0:
-                s = np.random.choice(self.CHAR_1)
-            else:
-                s = np.random.choice(self.CHAR_2)
+        for _ in np.arange(size):
+            s = np.random.choice(self.char_sets, p=self.probs)
             input_str += s
-            if len(input_str) > 1 and input_str[-2:] == 'AX':
-                target_str += 'R' 
+            if len(input_str) > 1 and s == 'AX':
+                target_str += 'LR' 
             else:
-                target_str += 'L'
+                target_str += 'LL'
         return input_str, target_str
 
     def _get_observation(self, pos=None):
