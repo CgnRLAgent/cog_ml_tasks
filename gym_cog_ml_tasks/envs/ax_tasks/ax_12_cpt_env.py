@@ -32,7 +32,7 @@ class AX_12_CPT_ENV(Env):
     CHAR_2 = ['X', 'Y', 'Z']
     ACTIONS = ['L', 'R']
 
-    def __init__(self, size=1000, prob_target=0.5):
+    def __init__(self, size=1000, prob_target=0.5,prob_12=0.1):
         """
         :param size: the number of digits and characters in total. Since it's random generated, the actual size may be size +1 
         :param prob_target: the probability to generate 'AX' or 'BY'
@@ -50,7 +50,7 @@ class AX_12_CPT_ENV(Env):
 
         self.size = size
         self.prob_target = prob_target
-
+        self.prob_12 = prob_12
         # states of an episode
         self.position = None
         self.last_action = None
@@ -78,14 +78,13 @@ class AX_12_CPT_ENV(Env):
     @property
     def probs(self):
         n_sets = len(self.char_sets)
-        prob_12 = 0.1
-        prob_other = (1 - self.prob_target-prob_12) / (n_sets - 4)
+        prob_other = (1 - self.prob_target-self.prob_12) / (n_sets - 4)
         p = np.full(n_sets, prob_other)
         
         p[self.char_sets.index('AX')] = self.prob_target / 2
         p[self.char_sets.index('BY')] = self.prob_target / 2
-        p[self.char_sets.index('1')] = prob_12 / 2
-        p[self.char_sets.index('2')] = prob_12 / 2
+        p[self.char_sets.index('1')] = self.prob_12 / 2
+        p[self.char_sets.index('2')] = self.prob_12 / 2
         return p
 
     @property
@@ -101,7 +100,7 @@ class AX_12_CPT_ENV(Env):
         self.last_action = None
         self.last_reward = None
         self.episode_total_reward = 0.0
-        self.input_str, self.target_str = self._generate_input_target(self.size)
+        self.input_str, self.target_str = self._generate_input_target()
         self.output_str = ''
         obs_char, obs_idx = self._get_observation()
         return obs_idx
@@ -146,13 +145,13 @@ class AX_12_CPT_ENV(Env):
         outfile.write("\n")
         return
 
-    def _generate_input_target(self, size):
+    def _generate_input_target(self):
         digit = np.random.choice(self.DIGITS)
         input_str = digit
         target_str = 'L'
         last_num = digit
 
-        while len(input_str) < size:
+        while len(input_str) < self.size:
 
             s = np.random.choice(self.char_sets, p=self.probs)
             input_str += s

@@ -33,4 +33,6 @@ env.render()
 # # custom params
 # env = gym.make('12AX_CPT-v0', size=800, prob_target=0.5)
 # Due to the randomness, the actual size could be either 800 or 801. Default size is 1000.
+# other optional parameter you can change is the probability of 1 or 2 generated in sequence and it should be small.
+# e.g: env = gym.make('12AX_CPT-v0', size=800, prob_target=0.5,probability= 0.2)
 ```

@@ -1,13 +1,11 @@
 """
 AX_12 TASK:
-
 The AX_12 task consists in the presentation to the subject of six possible stimuli/cues '1' - '2', 'A' - 'B', 'X' - 'Y'.
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli:
 he has to answer 'R' when
 - the last stored digit is '1' AND the previous stimulus is 'A' AND the current one is 'X',
 - the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
 in any other case , reply 'L'.
-
 AUTHOR: Zenggo
 DATE: 04.2020
 """
@@ -26,10 +24,10 @@ class AX_12_ENV(Env):
     CHAR_2 = ['X', 'Y', 'Z']
     ACTIONS = ['L', 'R']
 
-    def __init__(self, min_size=1, prob_r=0.3):
+    def __init__(self, size=10, prob_target=0.3):
         """
-        :param min_size: the min number of sets of 2-char combinations of generated inputs, e.g. 1: 1AX; 2: 1AXBY; 3: 1AXBYCZ
-        :param prob_r: the probability to generate 'AX' given '1' or 'BY' given '2'
+        :param size: the length of generated inputs, not including the first digit
+        :param prob_target: the probability to generate 'AX' or 'BY'
         """
         # observation (characters)
         self.idx_2_char = self.DIGITS + self.CHAR_1 + self.CHAR_2
@@ -41,8 +39,8 @@ class AX_12_ENV(Env):
         # action
         self.action_space = Discrete(len(self.ACTIONS))
 
-        self.min_size = min_size
-        self.prob_r = prob_r
+        self.size = size // 2
+        self.prob_target = prob_target
 
         # states of an episode
         self.position = None
@@ -66,19 +64,12 @@ class AX_12_ENV(Env):
         return sets
 
     @property
-    def probs_given_1(self):
+    def probs(self):
         n_sets = len(self.char_sets)
-        prob_l = (1 - self.prob_r) / (n_sets - 1)
-        p = np.full(n_sets, prob_l)
-        p[self.char_sets.index('AX')] = self.prob_r
-        return p
-
-    @property
-    def probs_given_2(self):
-        n_sets = len(self.char_sets)
-        prob_l = (1 - self.prob_r) / (n_sets - 1)
-        p = np.full(n_sets, prob_l)
-        p[self.char_sets.index('BY')] = self.prob_r
+        prob_other = (1 - self.prob_target) / (n_sets - 2)
+        p = np.full(n_sets, prob_other)
+        p[self.char_sets.index('AX')] = self.prob_target / 2
+        p[self.char_sets.index('BY')] = self.prob_target / 2
         return p
 
     @property
@@ -94,21 +85,20 @@ class AX_12_ENV(Env):
         self.last_action = None
         self.last_reward = None
         self.episode_total_reward = 0.0
-        size = self.np_random.randint(3) + self.min_size
-        self.input_str, self.target_str = self._generate_input_target(size)
+        self.input_str, self.target_str = self._generate_input_target()
         self.output_str = ''
         obs_char, obs_idx = self._get_observation()
         return obs_idx
 
     def step(self, action):
         assert self.action_space.contains(action)
-        assert 0 <= self.position <= self.input_length
-        output = self.ACTIONS[action]
-        reward = 1.0 if output == self.target_str[self.position] else -1.0
+        assert 0 <= self.position < self.input_length
+        target_act = self.ACTIONS.index(self.target_str[self.position])
+        reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
-        self.output_str += output
+        self.output_str += self.ACTIONS[action]
         self.position += 1
         if self.position < self.input_length:
             done = False
@@ -116,17 +106,17 @@ class AX_12_ENV(Env):
         else:
             done = True
             obs = None
-        return obs, reward, done, {}
+        info = {"target_act": target_act}
+        return obs, reward, done, info
 
     def render(self, mode='human'):
         outfile = sys.stdout  #TODO: other mode
         pos = self.position - 1
+        o_str = ""
         if pos > -1:
-            o_str = self.output_str[:pos]
-            color = 'green' if self.target_str[pos] == self.output_str[pos] else 'red'
-            o_str += colorize(self.output_str[pos], color, highlight=True)
-        else:
-            o_str = ''
+            for i, c in enumerate(self.output_str):
+                color = 'green' if self.target_str[i] == c else 'red'
+                o_str += colorize(c, color, highlight=True)
         outfile.write("="*20 + "\n")
         outfile.write("Length   : " + str(self.input_length) + "\n")
         outfile.write("Input    : " + self.input_str + "\n")
@@ -139,18 +129,16 @@ class AX_12_ENV(Env):
         outfile.write("\n")
         return
 
-    def _generate_input_target(self, size):
+    def _generate_input_target(self):
         digit = np.random.choice(self.DIGITS)
         input_str = digit
         target_str = 'L'
-        for _ in np.arange(size):
+        for _ in np.arange(self.size):
+            s = np.random.choice(self.char_sets, p=self.probs)
+            input_str += s
             if digit == '1':
-                s = np.random.choice(self.char_sets, p=self.probs_given_1)
-                input_str += s
                 target_str += 'LR' if s == 'AX' else 'LL'
             else:
-                s = np.random.choice(self.char_sets, p=self.probs_given_2)
-                input_str += s
                 target_str += 'LR' if s == 'BY' else 'LL'
         return input_str, target_str
 
