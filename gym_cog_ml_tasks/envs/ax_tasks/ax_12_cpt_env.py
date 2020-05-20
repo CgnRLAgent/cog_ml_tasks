@@ -109,12 +109,12 @@ class AX_12_CPT_ENV(Env):
     def step(self, action):
         assert self.action_space.contains(action)
         assert 0 <= self.position <= self.input_length
-        output = self.ACTIONS[action]
-        reward = 1.0 if output == self.target_str[self.position] else -1.0
+        target_act = self.ACTIONS.index(self.target_str[self.position])
+        reward = 1.0 if action == target_act else -1.0
         self.last_action = action
         self.last_reward = reward
         self.episode_total_reward += reward
-        self.output_str += output
+        self.output_str += self.ACTIONS[action]
         self.position += 1
         if self.position < self.input_length:
             done = False
@@ -122,7 +122,8 @@ class AX_12_CPT_ENV(Env):
         else:
             done = True
             obs = None
-        return obs, reward, done, {}
+        info = {"target_act": target_act}
+        return obs, reward, done, info
 
     def render(self, mode='human'):
         outfile = sys.stdout  #TODO: other mode
