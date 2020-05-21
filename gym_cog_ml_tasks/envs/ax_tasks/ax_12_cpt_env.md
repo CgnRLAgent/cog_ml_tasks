@@ -1,5 +1,5 @@
-## AX CPT TASK
-The 12 AX CPT task consists in the presentation to the subject of 8 possible stimuli/cues: 3 context cues 'A' - 'B' - 'C' and 3 target cues 'X' - 'Y' - 'Z'.
+## 12_AX_CPT TASK
+The 12_AX_CPT task consists in the presentation to the subject of 8 possible stimuli/cues: 3 context cues 'A' - 'B' - 'C' and 3 target cues 'X' - 'Y' - 'Z'.
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli: 
 he has to answer 'R' 
     when
@@ -31,6 +31,8 @@ env.reset()
 env.step(env.action_space.sample())
 env.render()
 # # custom params
-# env = gym.make('12AX_CPT-v0', size=800, prob_target=0.5)
+# env = gym.make('12_AX_CPT-v0', size=800, prob_target=0.5)
 # Due to the randomness, the actual size could be either 800 or 801. Default size is 1000.
+# other optional parameter you can change is the probability of 1 or 2 generated in sequence and it should be small.
+# e.g: env = gym.make('12_AX_CPT-v0', size=800, prob_target=0.5,probability= 0.2)
 ```
