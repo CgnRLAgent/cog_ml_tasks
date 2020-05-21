@@ -9,3 +9,5 @@ register(id="seq_prediction-v0", entry_point="gym_cog_ml_tasks.envs:seq_predicti
 
 register(id="Simple_Copy-v0", entry_point="gym_cog_ml_tasks.envs:Simple_Copy_ENV")
 register(id="Simple_Copy_Repeat-v0", entry_point="gym_cog_ml_tasks.envs:Simple_Copy_Repeat_ENV")
+
+register(id="Saccade-v0", entry_point="gym_cog_ml_tasks.envs:Saccade_ENV")

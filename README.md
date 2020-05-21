@@ -12,6 +12,8 @@ $ pip install -e .
 **Requirements:** see the [setup.py](setup.py).
 
 # Envs/Tasks Descriptions
+<<<<<<< HEAD
+=======
 1. [12_AX](gym_cog_ml_tasks/envs/ax_tasks/ax_12_env.md)
 2. [AX_CPT](gym_cog_ml_tasks/envs/ax_tasks/ax_cpt_env.md)
 3. [12_AX_S](gym_cog_ml_tasks/envs/ax_tasks/ax_s_12_env.md)
@@ -19,3 +21,4 @@ $ pip install -e .
 5. [Simple_Copy](gym_cog_ml_tasks/envs/copy_tasks/simple_copy_env.md)
 6. [Simple_Copy_Repeat](gym_cog_ml_tasks/envs/copy_tasks/simple_copy_repeat_env.md)
 7. [Sequence Prediction](gym_cog_ml_tasks/envs/task_seq_prediction/seq_prediction_env.md)
+>>>>>>> upstream/dev
