@@ -37,7 +37,8 @@ class Saccade_ENV(Env):
     FIX_MARK = ['P','A']
     LOC_MARK = ['L','R']
     ACTIONS = ['Front', 'Left', 'Right']
-    POS = ['Start', 'Fix', 'Cue', 'Delay', 'Go']
+    POS = ['Fix', 'Cue', 'Delay', 'Go']
+    OBS_IDX = ['Empty', 'P', 'PR', 'PL', 'A', 'AL', 'AR']
 
     def __init__(self, go_reward=10):
 
@@ -52,7 +53,6 @@ class Saccade_ENV(Env):
         self.time = 0
         self.screen = None
         self.total_reward = None
-        self.target = None
         self.input_data = None
         self.last_action = None
         self.last_reward = None
@@ -71,20 +71,18 @@ class Saccade_ENV(Env):
         return input_data
 
     def _generate_target(self, pos=None):
-        if pos is None:
-            pos = self.POS[0]
-        if pos == self.POS[0]:
+        if pos == None:
             return None
-        if pos == self.POS[1]:
+        if pos == self.POS[0]:
             fix_target = self.ACTIONS[0]
             return fix_target
-        if pos == self.POS[2]:
+        if pos == self.POS[1]:
             cue_target = self.ACTIONS[0]
             return cue_target
-        if pos == self.POS[3]:
+        if pos == self.POS[2]:
             delay_target = self.ACTIONS[0]
             return delay_target
-        if pos == self.POS[4]:
+        if pos == self.POS[3]:
             if self.input_data[0] == self.FIX_MARK[0]:
                 if self.input_data[1] == self.LOC_MARK[0]:
                     go_target = self.ACTIONS[1]
@@ -98,101 +96,107 @@ class Saccade_ENV(Env):
             return go_target
 
     def _get_obs(self):
-        if self.pos is None:
-            self.pos = self.POS[0]
+        if self.pos == None:
+            self.screen = None
+            return None
         if self.pos == self.POS[0]:
-            self.screen = None
-        if self.pos == self.POS[1]:
             self.screen = self.input_data[0]
-        if self.pos == self.POS[2]:
+        if self.pos == self.POS[1]:
             self.screen = self.input_data
+        if self.pos == self.POS[2]:
+            self.screen = self.input_data[0]
         if self.pos == self.POS[3]:
-            self.screen == self.input_data[0]
-        if self.pos == self.POS[4]:
-            self.screen = None
-        return self.screen
+            self.screen = 'Empty'
+        return self.OBS_IDX.index(self.screen)
     
         
     def reset(self):
         self.time = 0
         self.pos = self.POS[0]
         self.input_data = self._generate_input_data()
-        self.target = None
         self.total_reward = 0
         self.last_action = None
         self.last_reward = None
-        self.screen = self._get_obs()
         self.output_act = ''
-        return self.screen
+        first_obs = self._get_obs()  # set screen and get numerical obs
+        return first_obs
 
     
     def step(self, action):
         assert self.action_space.contains(action)
-        assert 0 <= self.time <= 7
-        self.last_action = action
+        assert 0 <= self.time <= 5  # Fix, Fix, Cue, Delay, Delay, Go
         reward = 0
         done = False
         current_act = self.ACTIONS[action]
-        self.time += 1
-        # get pos according to time
-        if self.time == 0: pos = self.POS[0]
-        if 1<= self.time <=2: pos = self.POS[1]
-        if self.time == 3: pos = self.POS[2]
-        if 4<= self.time <=5: pos = self.POS[3]
-        if self.time == 6: pos = self.POS[4]
-        self.pos = pos
+        pos = self.pos
         # get target according to pos
-        self.target = self._generate_target(pos)
+        target_act = self._generate_target(pos)
 
         # get reaward according to position, target and output
-        if pos == self.POS[1]:
-            if current_act == self.target: 
-                reward = 1 
-        if pos == self.POS[2]:
-            if current_act != self.target: reward = -1
-        if pos == self.POS[3]:
-            if current_act != self.target: reward = -1
-        if pos == self.POS[4]:
-            if current_act == self.target:
+        if pos == self.POS[0]:  # Fix
+            if current_act == target_act:
+                reward = 1
+        if pos == self.POS[1]:  # Cue
+            if current_act != target_act: reward = -1
+        if pos == self.POS[2]:  # Delay
+            if current_act != target_act: reward = -1
+        if pos == self.POS[3]:  # go
+            if current_act == target_act:
                 reward = self.go_reward
-            done = True
 
-        color = 'green' if self.target == current_act else 'red'
+        color = 'green' if target_act == current_act else 'red'
         current_act = colorize(current_act, color, highlight=True)
         self.output_act += current_act
         self.last_action = current_act
         self.last_reward = reward
         self.total_reward += reward
+
+        # move forward
+        self.time += 1
+        # get pos according to time
+        if 0 <= self.time <= 1:
+            self.pos = self.POS[0]
+        elif self.time == 2:
+            self.pos = self.POS[1]
+        elif 3 <= self.time <= 4:
+            self.pos = self.POS[2]
+        elif self.time == 5:
+            self.pos = self.POS[3]
+        else:
+            self.pos = None
+            done = True
+
         obs = self._get_obs()
-        self.screen = obs
-            
-        return obs, reward, done, {'target_act':self.target}
+
+        return obs, reward, done, {'target_act': self.ACTIONS.index(target_act)}
 
     def render(self, mode='human'):
         outfile = sys.stdout
         screen = self.screen
-        target = self.target
         pos = self.pos
-        current_act = self.last_action
+        target_act = self._generate_target(pos)
+        last_act = self.last_action
         output = self.output_act
+        input_data = self.input_data
         last_reward = self.last_reward
         total_reward = self.total_reward
-        Cumulative_output = self.output_act
 
         if screen == None: screen = 'None'
-        if target == None: target = 'None'
-        if pos == None: pos = self.POS[0]
-        if current_act == None: current_act = 'None'
+        if input_data == None: input_data = 'None'
+        if target_act == None: target_act = 'None'
+        if pos == None: pos = 'None'
+        if last_act == None: last_act = 'None'
         if output == None: output = 'None'
         if last_reward == None: last_reward = 0
         if total_reward == None: total_reward = 0
 
         outfile.write("="*20 + "\n")
+        outfile.write("Input data: " + input_data + "\n")
         outfile.write("Time: %d\n" %self.time )
         outfile.write("Position: " + pos + "\n")
         outfile.write("Screen: " + screen +"\n")
-        outfile.write("Target: " + target +"\n")
-        outfile.write("Current Action: " + current_act + "\n")
+        outfile.write("Target Action: " + target_act +"\n")
+        outfile.write("Last Action: " + last_act + "\n")
         outfile.write("Cumulative Actions: " + output +"\n")
         outfile.write("-"*20 + "\n")
         outfile.write("Current reward: %d\n" %last_reward)
