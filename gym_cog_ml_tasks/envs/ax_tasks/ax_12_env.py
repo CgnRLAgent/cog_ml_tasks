@@ -1,13 +1,11 @@
 """
 AX_12 TASK:
-
 The AX_12 task consists in the presentation to the subject of six possible stimuli/cues '1' - '2', 'A' - 'B', 'X' - 'Y'.
 The tester has 2 possible responses which depend on the temporal order of previous and current stimuli:
 he has to answer 'R' when
 - the last stored digit is '1' AND the previous stimulus is 'A' AND the current one is 'X',
 - the last stored digit is '2' AND the previous stimulus is 'B' AND the current one is 'Y';
 in any other case , reply 'L'.
-
 AUTHOR: Zenggo
 DATE: 04.2020
 """

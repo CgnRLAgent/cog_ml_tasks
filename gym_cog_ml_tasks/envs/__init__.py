@@ -7,3 +7,5 @@ from gym_cog_ml_tasks.envs.task_seq_prediction.seq_prediction_env import seq_pre
 
 from gym_cog_ml_tasks.envs.copy_tasks.simple_copy_env import Simple_Copy_ENV
 from gym_cog_ml_tasks.envs.copy_tasks.simple_copy_repeat_env import Simple_Copy_Repeat_ENV
+
+from gym_cog_ml_tasks.envs.saccade_task.saccade_env import Saccade_ENV

@@ -17,9 +17,9 @@ Input: AXBY
 
 Target: LRLL
 
-Input: XXYAX
+Input: AXAYBXBY
 
-Target: LLLLR
+Target: LRLLLLLL
 
 ### Usage
 ```python
