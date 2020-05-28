@@ -6,6 +6,8 @@ from gym_cog_ml_tasks.envs.ax_tasks.ax_12_cpt_env import AX_12_CPT_ENV
 from gym_cog_ml_tasks.envs.task_seq_prediction.seq_prediction_env import seq_prediction_ENV
 
 from gym_cog_ml_tasks.envs.copy_tasks.simple_copy_env import Simple_Copy_ENV
-from gym_cog_ml_tasks.envs.copy_tasks.simple_copy_repeat_env import Simple_Copy_Repeat_ENV
+from gym_cog_ml_tasks.envs.copy_tasks.simple_copy_v1_env import Simple_Copy_v1_ENV
+from gym_cog_ml_tasks.envs.copy_tasks.copy_repeat_env import Copy_Repeat_ENV
+from gym_cog_ml_tasks.envs.copy_tasks.copy_repeat_v1_env import Copy_Repeat_v1_ENV
 
 from gym_cog_ml_tasks.envs.saccade_task.saccade_env import Saccade_ENV
