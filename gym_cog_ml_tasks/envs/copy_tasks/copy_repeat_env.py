@@ -24,7 +24,7 @@ import sys
 import string
 
 
-class Simple_Copy_Repeat_ENV(Env):
+class Copy_Repeat_ENV(Env):
 
     ALPHABET = list(string.ascii_uppercase[:26])
 
