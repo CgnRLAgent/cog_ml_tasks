@@ -8,6 +8,8 @@ register(id="12_AX_CPT-v0", entry_point="gym_cog_ml_tasks.envs:AX_12_CPT_ENV")
 register(id="seq_prediction-v0", entry_point="gym_cog_ml_tasks.envs:seq_prediction_ENV")
 
 register(id="Simple_Copy-v0", entry_point="gym_cog_ml_tasks.envs:Simple_Copy_ENV")
-register(id="Simple_Copy_Repeat-v0", entry_point="gym_cog_ml_tasks.envs:Simple_Copy_Repeat_ENV")
+register(id="Simple_Copy-v1", entry_point="gym_cog_ml_tasks.envs:Simple_Copy_v1_ENV")
+register(id="Simple_Copy_Repeat-v0", entry_point="gym_cog_ml_tasks.envs:Copy_Repeat_ENV")
+register(id="Simple_Copy_Repeat-v1", entry_point="gym_cog_ml_tasks.envs:Copy_Repeat_v1_ENV")
 
 register(id="Saccade-v0", entry_point="gym_cog_ml_tasks.envs:Saccade_ENV")
